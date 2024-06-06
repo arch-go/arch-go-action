@@ -25,6 +25,6 @@ runs:
     - name: Run arch-go
       shell: bash
       run: |
-        verbose_flag=$( ${{ inputs.verbose }} && echo "--verbose" || echo "" )
-        report_flag=$( ${{ inputs.generate_report }} && echo "--html" || echo "" )
+        verbose_flag=$( "${{ inputs.verbose }}" && echo "--verbose" || echo "" )
+        report_flag=$( "${{ inputs.generate_report }}" && echo "--html" || echo "" )
         arch-go ${verbose_flag} ${report_flag}
