@@ -1,0 +1,30 @@
+name: "Arch Go"
+description: "Runs arch-go to perform architecture checks of your golang projects "
+inputs:
+  version:
+    description: The version of arch-go to use
+    required: false
+    default: latest
+  verbose:
+    description: Let arch-go generate verbose output
+    required: false
+  generate_report:
+    description: Whether an HTML report should be generated
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
+      with:
+        go-version: "1.22.4"
+    - name: Get fdaines/arch-go
+      shell: bash
+      run: go install github.com/fdaines/arch-go@${{ inputs.version }}
+    - name: Run arch-go
+      shell: bash
+      run: |
+        args=$({{ inputs.verbose }} && echo "--verbose" || echo "")
+        args=$({{ inputs.generate_report }} && echo "${args} --html" || echo "${args}")
+        arch-go ${args}
