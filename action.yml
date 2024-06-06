@@ -25,6 +25,6 @@ runs:
     - name: Run arch-go
       shell: bash
       run: |
-        args=$({{ inputs.verbose }} && echo "--verbose" || echo "")
-        args=$({{ inputs.generate_report }} && echo "${args} --html" || echo "${args}")
+        args=$(${{ inputs.verbose }} && echo "--verbose" || echo "")
+        args=$(${{ inputs.generate_report }} && echo "${args} --html" || echo "${args}")
         arch-go ${args}
