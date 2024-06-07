@@ -6,12 +6,12 @@ A GitHub action for integrating [arch-go](https://github.com/fdaines/arch-go) in
 
 ```yaml
 steps:
-  name: Perform architecture check
-  uses: dadrus/arch-go-action@master
-  with:
-    version: v1.5.2        # optional, defaults to latest
-    generate_report: true  # optional, defaults to false
-    verbose: true          # optional, defaults to false
+  - name: Perform architecture check
+    uses: dadrus/arch-go-action@master
+    with:
+      version: v1.5.2
+      generate_report: true
+      verbose: true
 ```
 
 * `version`: The version of arch-go to use. Optional and defaults to `latest`.
