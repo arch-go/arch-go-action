@@ -25,6 +25,12 @@ runs:
     - name: Run arch-go
       shell: bash
       run: |
-        verbose_flag=$( "${{ inputs.verbose }}" && echo "--verbose" || echo "" )
-        report_flag=$( "${{ inputs.generate_report }}" && echo "--html" || echo "" )
+        verbose_flag=$([ "${{ inputs.verbose }}" == "true" ] && echo "--verbose" || echo "" )
+        report_flag=$([ "${{ inputs.generate_report }}" == "true" ] && echo "--html" || echo "" )
         arch-go ${verbose_flag} ${report_flag}
+    - name: Upload report
+      if: inputs.generate_report == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: report.html
+        path: .arch-go/report.html
