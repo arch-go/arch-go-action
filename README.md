@@ -2,6 +2,10 @@
 
 A GitHub action for integrating [arch-go](https://github.com/fdaines/arch-go) into your CI workflow.
 
+The action expects the `arch-go.yml` file (see als [here](https://github.com/fdaines/arch-go/tree/master#file-arch-goyml)), expected by arch-go in the root of the project.
+
+As of today, the action installs arch-go by making use of `go install ...`. To be able to do so, it installs the most recent go version as well.
+
 ## Usage
 
 ```yaml
