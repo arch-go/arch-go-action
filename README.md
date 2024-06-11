@@ -14,13 +14,15 @@ steps:
     uses: dadrus/arch-go-action@master
     with:
       version: v1.5.2
-      generate_report: true
+      generate-report: true
       verbose: true
+      working-directory: ./
 ```
 
 * `version`: The version of arch-go to use. Optional and defaults to `latest`.
-* `generate_report`: Whether an HTML report should be generated. Optional and defaults to `false`. If enabled, the generated report will be available as artefact for download.
+* `generate-report`: Whether an HTML report should be generated. Optional and defaults to `false`. If enabled, the generated report will be available as artefact for download.
 * `verbose`: Instructs arch-go to generate verbose output, which might be helpful for debugging purposes. Optional and defaults to `false`.
+* `working-directory`: Were to look for the code. Optional and defaults to `./` relative to the default working directory (`github.workspace`, `$GITHUB_WORKSPACE`)
 
 ## License
 
