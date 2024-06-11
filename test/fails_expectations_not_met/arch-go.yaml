@@ -4,4 +4,4 @@ threshold:
   coverage: 100
 contentsRules:
   - package: "main"
-    shouldNotContainMethods: true
+    shouldNotContainFunctions: true
