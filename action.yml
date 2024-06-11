@@ -30,7 +30,7 @@ runs:
         arch-go ${verbose_flag} ${report_flag}
     - name: Upload report
       if: inputs.generate_report == 'true'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
       with:
         name: report.html
         path: .arch-go/report.html
