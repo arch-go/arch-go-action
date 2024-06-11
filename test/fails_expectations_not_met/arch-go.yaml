@@ -1,0 +1,7 @@
+version: 1
+threshold:
+  compliance: 100
+  coverage: 100
+contentsRules:
+  - package: "main"
+    shouldNotContainMethods: true
