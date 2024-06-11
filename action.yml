@@ -8,9 +8,12 @@ inputs:
   verbose:
     description: Let arch-go generate verbose output
     required: false
-  generate_report:
+  generate-report:
     description: Whether an HTML report should be generated
     required: false
+  working-directory:
+    description: Working directory relative to the root directory
+    default: ./
 
 runs:
   using: composite
@@ -24,12 +27,13 @@ runs:
       run: go install github.com/fdaines/arch-go@${{ inputs.version }}
     - name: Run arch-go
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
         verbose_flag=$([ "${{ inputs.verbose }}" == "true" ] && echo "--verbose" || echo "" )
-        report_flag=$([ "${{ inputs.generate_report }}" == "true" ] && echo "--html" || echo "" )
+        report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html" || echo "" )
         arch-go ${verbose_flag} ${report_flag}
     - name: Upload report
-      if: inputs.generate_report == 'true'
+      if: inputs.generate-report == 'true'
       uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
       with:
         name: report.html

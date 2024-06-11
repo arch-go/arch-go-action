@@ -13,9 +13,6 @@ permissions: read-all
 jobs:
   test-action-fails-no-arch-go-yaml-file:
     runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: test/fails_no_arch_go_yaml
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
@@ -25,12 +22,11 @@ jobs:
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
       - name: Testing error on missing arch-go.yaml
         uses: ./
+        with:
+          working-directory: test/fails_no_arch_go_yaml
 
   test-action-fails-expectations-not-met:
     runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: test/fails_expectations_not_met
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
@@ -40,6 +36,8 @@ jobs:
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
       - name: Testing error expectations not met
         uses: ./
+        with:
+          working-directory: test/fails_expectations_not_met
 
   test-action-successful:
     runs-on: ubuntu-22.04
@@ -55,3 +53,5 @@ jobs:
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
       - name: Testing success
         uses: ./
+        with:
+          working-directory: test/successful
