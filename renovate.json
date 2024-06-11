@@ -1,6 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
-  ]
+    "config:base",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(deps)",
+    ":semanticCommitScopeDisabled"
+  ],
+  "baseBranches": ["main"],
+  "assigneesFromCodeOwners": true,
+  "addLabels": ["dependency"],
+  "automerge": false,
+  "commitMessageAction": "Update"
 }
