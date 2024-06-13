@@ -32,8 +32,10 @@ runs:
       run: |
         verbose_flag=$([ "${{ inputs.verbose }}" == "true" ] && echo "--verbose" || echo "" )
         report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html" || echo "" )
+        set +e
         arch-go ${verbose_flag} ${report_flag} 2>&1 | tee result.log
         exit_code=${PIPESTATUS[0]}
+        set -e
         archgo_result=$(cat result.log)
         echo "checkresult<<EOF" >> $GITHUB_ENV
         echo "$archgo_result" >> $GITHUB_ENV
@@ -56,13 +58,15 @@ runs:
         script: |
           const result = process.env.ARCHGO_RESULT;
           const exitCode = process.env.EXIT_CODE;
-          const header = "## Arch-Go Architecture check results:\n";
           
+          let header = "## Arch-Go Architecture check results:";
           let statusMessage = "";
           
           if (exitCode === "0") {
+            header += " ✅\n";
             statusMessage = "### ✅ Check has PASSED ✅";
           } else {
+            header += " ❌\n";
             statusMessage = "### ❌ Check has FAILED ❌";
           }
           
