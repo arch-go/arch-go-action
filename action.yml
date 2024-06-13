@@ -26,12 +26,20 @@ runs:
       shell: bash
       run: go install github.com/fdaines/arch-go@${{ inputs.version }}
     - name: Run arch-go
+      id: arch-go-check
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
         verbose_flag=$([ "${{ inputs.verbose }}" == "true" ] && echo "--verbose" || echo "" )
         report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html" || echo "" )
-        arch-go ${verbose_flag} ${report_flag}
+        arch-go ${verbose_flag} ${report_flag} 2>&1 | tee result.log
+        exit_code=${PIPESTATUS[0]}
+        archgo_result=$(cat result.log)
+        archgo_result="${archgo_result//'%'/'%25'}"
+        archgo_result="${archgo_result//$'\n'/'%0A'}"
+        archgo_result="${archgo_result//$'\r'/'%0D'}"
+        echo "checkresult=$archgo_result" >> $GITHUB_OUTPUT
+        exit $exit_code
     - name: Upload report
       if: inputs.generate-report == 'true'
       uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
@@ -40,11 +48,15 @@ runs:
         path: .arch-go/report.html
     - name: Add PR comment
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea #v7.0.1
+      env:
+        ARCHGO_RESULT: ${{steps.arch-go-check.outputs.checkresult}}
       with:
         script: |
+          const result = process.env.ARCHGO_RESULT;
+          
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: '👋- This is static for now, but cool.'
+            body: result 
           })
