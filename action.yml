@@ -26,15 +26,53 @@ runs:
       shell: bash
       run: go install github.com/fdaines/arch-go@${{ inputs.version }}
     - name: Run arch-go
+      id: arch-go-check
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
         verbose_flag=$([ "${{ inputs.verbose }}" == "true" ] && echo "--verbose" || echo "" )
         report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html" || echo "" )
-        arch-go ${verbose_flag} ${report_flag}
+        set +e
+        arch-go ${verbose_flag} ${report_flag} 2>&1 | tee result.log
+        exit_code=${PIPESTATUS[0]}
+        set -e
+        archgo_result=$(cat result.log)
+        echo "checkresult<<EOF" >> $GITHUB_ENV
+        echo "$archgo_result" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        echo "ARCHGO_EXIT_CODE=$exit_code" >> $GITHUB_ENV
+        exit $exit_code
     - name: Upload report
       if: inputs.generate-report == 'true'
       uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
       with:
         name: report.html
         path: .arch-go/report.html
+    - name: Add PR comment
+      if: always()
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea #v7.0.1
+      env:
+        ARCHGO_RESULT: ${{ env.checkresult }}
+        EXIT_CODE: ${{ env.ARCHGO_EXIT_CODE }}
+      with:
+        script: |
+          const result = process.env.ARCHGO_RESULT;
+          const exitCode = process.env.EXIT_CODE;
+          
+          let header = "## Arch-Go Architecture check results:";
+          let statusMessage = "";
+          
+          if (exitCode === "0") {
+            header += " ✅\n";
+            statusMessage = "### ✅ Check has PASSED ✅";
+          } else {
+            header += " ❌\n";
+            statusMessage = "### ❌ Check has FAILED ❌";
+          }
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: header + "```\n" + result + "\n```\n" + statusMessage 
+          })
