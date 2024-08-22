@@ -31,7 +31,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         verbose_flag=$([ "${{ inputs.verbose }}" == "true" ] && echo "--verbose" || echo "" )
-        report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html" || echo "" )
+        report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html --json" || echo "" )
         set +e
         arch-go ${verbose_flag} ${report_flag} 2>&1 | tee result.log
         exit_code=${PIPESTATUS[0]}

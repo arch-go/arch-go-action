@@ -27,6 +27,7 @@ jobs:
         with:
           working-directory: test/fails_no_arch_go_yaml
           verbose: true
+          version: '72-generate-json-report'
 
   test-action-fails-expectations-not-met:
     runs-on: ubuntu-22.04
@@ -44,6 +45,7 @@ jobs:
         with:
           working-directory: test/fails_expectations_not_met
           verbose: true
+          version: '72-generate-json-report'
 
   test-action-successful:
     runs-on: ubuntu-22.04
@@ -61,3 +63,4 @@ jobs:
         with:
           working-directory: test/successful
           verbose: true
+          version: '72-generate-json-report'
