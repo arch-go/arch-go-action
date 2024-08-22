@@ -69,10 +69,10 @@ runs:
           
           | **Rule Types**   | **Total** | **Passed** | **Failed** |
           |------------------|-----------|------------|------------|
-          | Dependency Rules | ${compliance.details.dependenciesRules.total} |  ${compliance.details.dependenciesRules.passed} |  ${compliance.details.dependenciesRules.failed} |
-          | Function Rules   | ${compliance.details.functionsRules.total} |  ${compliance.details.functionsRules.passed} |  ${compliance.details.functionsRules.failed} |
-          | Content Rules    | ${compliance.details.contentsRules.total} |  ${compliance.details.contentsRules.passed} |  ${compliance.details.contentsRules.failed} |
-          | Naming Rules     | ${compliance.details.namingRules.total} |  ${compliance.details.namingRules.passed} |  ${compliance.details.namingRules.failed} |
+          | Dependency Rules | ${report.compliance.details.dependenciesRules.total} |  ${report.compliance.details.dependenciesRules.passed} |  ${report.compliance.details.dependenciesRules.failed} |
+          | Function Rules   | ${report.compliance.details.functionsRules.total} |  ${report.compliance.details.functionsRules.passed} |  ${report.compliance.details.functionsRules.failed} |
+          | Content Rules    | ${report.compliance.details.contentsRules.total} |  ${report.compliance.details.contentsRules.passed} |  ${report.compliance.details.contentsRules.failed} |
+          | Naming Rules     | ${report.compliance.details.namingRules.total} |  ${report.compliance.details.namingRules.passed} |  ${report.compliance.details.namingRules.failed} |
           `
           /*
           const result = process.env.ARCHGO_RESULT;
