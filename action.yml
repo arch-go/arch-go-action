@@ -22,16 +22,16 @@ runs:
       uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
       with:
         go-version: "1.22.4"
-    - name: Get fdaines/arch-go
+    - name: Get arch-go/arch-go
       shell: bash
-      run: go install github.com/fdaines/arch-go@${{ inputs.version }}
+      run: go install github.com/arch-go/arch-go@${{ inputs.version }}
     - name: Run arch-go
       id: arch-go-check
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
         verbose_flag=$([ "${{ inputs.verbose }}" == "true" ] && echo "--verbose" || echo "" )
-        report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html" || echo "" )
+        report_flag=$([ "${{ inputs.generate-report }}" == "true" ] && echo "--html --json" || echo "" )
         set +e
         arch-go ${verbose_flag} ${report_flag} 2>&1 | tee result.log
         exit_code=${PIPESTATUS[0]}
@@ -42,12 +42,12 @@ runs:
         echo "EOF" >> $GITHUB_ENV
         echo "ARCHGO_EXIT_CODE=$exit_code" >> $GITHUB_ENV
         exit $exit_code
-    - name: Upload report
-      if: inputs.generate-report == 'true'
-      uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
-      with:
-        name: report.html
-        path: .arch-go/report.html
+    #- name: Upload report
+    #  if: always() && inputs.generate-report == 'true'
+    #  uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
+    #  with:
+    #    name: report.json
+    #    path: ${{ inputs.working-directory }}/.arch-go/report.json
     - name: Add PR comment
       if: always()
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea #v7.0.1
@@ -56,23 +56,69 @@ runs:
         EXIT_CODE: ${{ env.ARCHGO_EXIT_CODE }}
       with:
         script: |
-          const result = process.env.ARCHGO_RESULT;
-          const exitCode = process.env.EXIT_CODE;
+          function getFailedRules(rules = [], type) {
+            errors = [];
           
-          let header = "## Arch-Go Architecture check results:";
-          let statusMessage = "";
+            for (const rule of rules) {
+              if (!rule.pass) {
+                errors.push({
+                  description: rule.rule,
+                  ruleType: type
+                });
+              }
+            }
           
-          if (exitCode === "0") {
-            header += " ✅\n";
-            statusMessage = "### ✅ Check has PASSED ✅";
-          } else {
-            header += " ❌\n";
-            statusMessage = "### ❌ Check has FAILED ❌";
+            return errors;
           }
+          
+          const fs = require('fs');
+          const path = "${{ inputs.working-directory }}/.arch-go/report.json";
+          const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const status = report.summary.pass ? '\$\\color\{green\}\{PASS\}\$' : '$\color{red}{FAIL}$';
+          
+          let errorDetails = "";
+          
+          if (!report.summary.pass) {
+            let errors = [];
+            
+            errors.push(...getFailedRules(report.compliance.details.dependenciesRules.details, "Dependency Rule"));
+            errors.push(...getFailedRules(report.compliance.details.functionsRules.details, "Function Rule"));
+            errors.push(...getFailedRules(report.compliance.details.contentsRules.details, "Content Rule"));
+            errors.push(...getFailedRules(report.compliance.details.namingRules.details, "Naming Rule"));
+            
+            errorDetails = `
+            ### Failure Details
+            
+            | **Rule Type**    | **Rule Description** |
+            |------------------|----------------------|
+            `;
+            
+            for (error of errors) {
+              errorDetails += `| ${error.ruleType} | ${error.description} |`;
+              errorDetails += "\n";
+            }
+          }
+          
+          body = `
+          ## [Arch-Go](https://github.com/arch-go/arch-go) Report
+          
+          Coverage Rate:   ${report.coverage.rate} %
+          Compliance Rate: ${report.compliance.rate} %
+          
+          ### Summary
+          | **Rule Types**   | **Total** | **Passed** | **Failed** |
+          |------------------|-----------|------------|------------|
+          | Dependency Rules | ${report.compliance.details.dependenciesRules.total} |  ${report.compliance.details.dependenciesRules.passed} |  ${report.compliance.details.dependenciesRules.failed} |
+          | Function Rules   | ${report.compliance.details.functionsRules.total} |  ${report.compliance.details.functionsRules.passed} |  ${report.compliance.details.functionsRules.failed} |
+          | Content Rules    | ${report.compliance.details.contentsRules.total} |  ${report.compliance.details.contentsRules.passed} |  ${report.compliance.details.contentsRules.failed} |
+          | Naming Rules     | ${report.compliance.details.namingRules.total} |  ${report.compliance.details.namingRules.passed} |  ${report.compliance.details.namingRules.failed} |
+          
+          ${errorDetails}
+          `
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: header + "```\n" + result + "\n```\n" + statusMessage 
+            body: body
           })

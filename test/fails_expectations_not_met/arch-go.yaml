@@ -1,0 +1,16 @@
+version: 1
+threshold:
+  compliance: 100
+  coverage: 100
+contentsRules:
+  - package: "main"
+    shouldNotContainFunctions: true
+dependenciesRules:
+  - package: "main"
+    shouldOnlyDependsOn:
+      external:
+        - "gopkg.in/yaml.v3"
+  - package: "main"
+    shouldOnlyDependsOn:
+      external:
+        - "gopkg.in/yaml.v2"
