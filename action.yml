@@ -56,11 +56,11 @@ runs:
         EXIT_CODE: ${{ env.ARCHGO_EXIT_CODE }}
       with:
         script: |
-          function getFailedRules(rules, type) {
+          function getFailedRules(rules = [], type) {
             errors = [];
           
             for (const rule of rules) {
-              if (rule.pass !== true) {
+              if (!rule.pass) {
                 errors.push({
                   description: rule.rule,
                   ruleType: type
@@ -78,7 +78,7 @@ runs:
           
           let errorDetails = "";
           
-          if (report.summary.pass !== true) {
+          if (!report.summary.pass) {
             let errors = [];
             
             errors.push(...getFailedRules(report.compliance.details.dependenciesRules.details, "Dependency Rule"));
