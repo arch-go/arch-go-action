@@ -22,9 +22,9 @@ runs:
       uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
       with:
         go-version: "1.22.4"
-    - name: Get fdaines/arch-go
+    - name: Get arch-go/arch-go
       shell: bash
-      run: go install github.com/fdaines/arch-go@${{ inputs.version }}
+      run: go install github.com/arch-go/arch-go@${{ inputs.version }}
     - name: Run arch-go
       id: arch-go-check
       shell: bash
