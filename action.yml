@@ -60,7 +60,7 @@ runs:
             errors = [];
           
             for (const rule of rules) {
-              if !rule.pass {
+              if rule.pass !== true{
                 errors.push({
                   description: rule.rule,
                   ruleType: type
@@ -78,7 +78,7 @@ runs:
           
           let errorDetails = "";
           
-          if !report.summary.pass {
+          if report.summary.pass !== true {
             let errors = [];
             
             errors.push(...getFailedRules(report.compliance.details.dependenciesRules.details, "Dependency Rule"));
