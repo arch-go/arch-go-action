@@ -94,8 +94,8 @@ runs:
             `;
             
             for (error of errors) {
-              result += `| ${error.ruleType} | ${error.description} |`;
-              result += "\n";
+              errorDetails += `| ${error.ruleType} | ${error.description} |`;
+              errorDetails += "\n";
             }
           }
           
