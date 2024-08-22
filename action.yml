@@ -64,11 +64,15 @@ runs:
           body = `
           ## [Arch-Go](https://github.com/arch-go/arch-go) Report
           
-          Status: ${status}
-          Coverage Rate: ${report.coverage.rate} %
+          Coverage Rate:   ${report.coverage.rate} %
           Compliance Rate: ${report.compliance.rate} %
           
-          TBD
+          | **Rule Types**   | **Total** | **Passed** | **Failed** |
+          |------------------|-----------|------------|------------|
+          | Dependency Rules | ${compliance.details.dependenciesRules.total} |  ${compliance.details.dependenciesRules.passed} |  ${compliance.details.dependenciesRules.failed} |
+          | Function Rules   | ${compliance.details.functionsRules.total} |  ${compliance.details.functionsRules.passed} |  ${compliance.details.functionsRules.failed} |
+          | Content Rules    | ${compliance.details.contentsRules.total} |  ${compliance.details.contentsRules.passed} |  ${compliance.details.contentsRules.failed} |
+          | Naming Rules     | ${compliance.details.namingRules.total} |  ${compliance.details.namingRules.passed} |  ${compliance.details.namingRules.failed} |
           `
           /*
           const result = process.env.ARCHGO_RESULT;
