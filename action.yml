@@ -42,17 +42,12 @@ runs:
         echo "EOF" >> $GITHUB_ENV
         echo "ARCHGO_EXIT_CODE=$exit_code" >> $GITHUB_ENV
         exit $exit_code
-    - name: Check dir contents
-      if: always()
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: ls -la
-    - name: Upload report
-      if: always() && inputs.generate-report == 'true'
-      uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
-      with:
-        name: report.json
-        path: ${{ inputs.working-directory }}/.arch-go/report.json
+    #- name: Upload report
+    #  if: always() && inputs.generate-report == 'true'
+    #  uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
+    #  with:
+    #    name: report.json
+    #    path: ${{ inputs.working-directory }}/.arch-go/report.json
     - name: Add PR comment
       if: always()
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea #v7.0.1
@@ -61,6 +56,13 @@ runs:
         EXIT_CODE: ${{ env.ARCHGO_EXIT_CODE }}
       with:
         script: |
+          const fs = require('fs');
+          const path = ${{ inputs.working-directory }}/.arch-go/report.json;
+          const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+          
+          console.log(path);
+          console.log(report);
+          /*
           const result = process.env.ARCHGO_RESULT;
           const exitCode = process.env.EXIT_CODE;
           
@@ -81,3 +83,4 @@ runs:
             repo: context.repo.repo,
             body: header + "```\n" + result + "\n```\n" + statusMessage 
           })
+          */
