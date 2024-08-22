@@ -59,7 +59,7 @@ runs:
           const fs = require('fs');
           const path = "${{ inputs.working-directory }}/.arch-go/report.json";
           const report = JSON.parse(fs.readFileSync(path, 'utf8'));
-          const status = report.summary.pass ? '$\color{green}{PASS}$' : '$\color{red}{FAIL}$';
+          const status = report.summary.pass ? '\$\\color\{green\}\{PASS\}\$' : '$\color{red}{FAIL}$';
           
           body = `
           ## [Arch-Go](https://github.com/arch-go/arch-go) Report
