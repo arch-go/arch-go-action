@@ -56,10 +56,48 @@ runs:
         EXIT_CODE: ${{ env.ARCHGO_EXIT_CODE }}
       with:
         script: |
+          function getFailedRules(rules, type) {
+            errors = [];
+          
+            for (const rule of rules) {
+              if !rule.pass {
+                errors.push({
+                  description: rule.rule,
+                  ruleType: type
+                });
+              }
+            }
+          
+            return errors;
+          }
+          
           const fs = require('fs');
           const path = "${{ inputs.working-directory }}/.arch-go/report.json";
           const report = JSON.parse(fs.readFileSync(path, 'utf8'));
           const status = report.summary.pass ? '\$\\color\{green\}\{PASS\}\$' : '$\color{red}{FAIL}$';
+          
+          let errorDetails = "";
+          
+          if !report.summary.pass {
+            let errors = [];
+            
+            errors.push(...getFailedRules(report.compliance.details.dependenciesRules.details, "Dependency Rule"));
+            errors.push(...getFailedRules(report.compliance.details.functionsRules.details, "Function Rule"));
+            errors.push(...getFailedRules(report.compliance.details.contentsRules.details, "Content Rule"));
+            errors.push(...getFailedRules(report.compliance.details.namingRules.details, "Naming Rule"));
+            
+            errorDetails = `
+            ### Failure Details
+            
+            | **Rule Type**    | **Rule Description** |
+            |------------------|----------------------|
+            `;
+            
+            for (error of errors) {
+              result += `| ${error.ruleType} | ${error.description} |`;
+              result += "\n";
+            }
+          }
           
           body = `
           ## [Arch-Go](https://github.com/arch-go/arch-go) Report
@@ -67,28 +105,16 @@ runs:
           Coverage Rate:   ${report.coverage.rate} %
           Compliance Rate: ${report.compliance.rate} %
           
+          ### Summary
           | **Rule Types**   | **Total** | **Passed** | **Failed** |
           |------------------|-----------|------------|------------|
           | Dependency Rules | ${report.compliance.details.dependenciesRules.total} |  ${report.compliance.details.dependenciesRules.passed} |  ${report.compliance.details.dependenciesRules.failed} |
           | Function Rules   | ${report.compliance.details.functionsRules.total} |  ${report.compliance.details.functionsRules.passed} |  ${report.compliance.details.functionsRules.failed} |
           | Content Rules    | ${report.compliance.details.contentsRules.total} |  ${report.compliance.details.contentsRules.passed} |  ${report.compliance.details.contentsRules.failed} |
           | Naming Rules     | ${report.compliance.details.namingRules.total} |  ${report.compliance.details.namingRules.passed} |  ${report.compliance.details.namingRules.failed} |
+          
+          ${errorDetails}
           `
-          /*
-          const result = process.env.ARCHGO_RESULT;
-          const exitCode = process.env.EXIT_CODE;
-          
-          let header = "Arch-Go Report";
-          let statusMessage = "";
-          
-          if (exitCode === "0") {
-            header += " ✅\n";
-            statusMessage = "### ✅ Check has PASSED ✅";
-          } else {
-            header += " ❌\n";
-            statusMessage = "### ❌ Check has FAILED ❌";
-          }
-          */
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
