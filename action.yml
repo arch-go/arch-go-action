@@ -59,14 +59,24 @@ runs:
           const fs = require('fs');
           const path = "${{ inputs.working-directory }}/.arch-go/report.json";
           const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const status = report.summary.pass ? "$${\color{green}PASS}$$" : "$${\color{red}FAIL}$$";
           
-          console.log(path);
-          console.log(report);
+          body = `
+          ## Arch-Go Report
+          
+          ---
+          
+          Status: ${status}
+          Coverage Rate: ${report.coverage.rate}
+          Compliance Rate: ${report.compliance.rate}
+          
+          TBD
+          `
           /*
           const result = process.env.ARCHGO_RESULT;
           const exitCode = process.env.EXIT_CODE;
           
-          let header = "## Arch-Go Architecture check results:";
+          let header = "Arch-Go Report";
           let statusMessage = "";
           
           if (exitCode === "0") {
@@ -76,11 +86,11 @@ runs:
             header += " ❌\n";
             statusMessage = "### ❌ Check has FAILED ❌";
           }
+          */
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: header + "```\n" + result + "\n```\n" + statusMessage 
+            body: body
           })
-          */
